@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ReadWorld – Read Any Book Online Free</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="ReadWorld - Free online book reading platform. Read PDF and EPUB books, track progress, write reviews, and enjoy an accessible reading experience with dark mode and color-blind friendly options." />
+  <meta name="keywords" content="read books online, free ebooks, PDF reader, EPUB reader, online library, book reviews, reading tracker, accessible reading" />
+  <meta name="author" content="ReadWorld" />
+  <meta name="robots" content="index, follow" />
+  
+  <!-- Open Graph Meta Tags for Social Sharing -->
+  <meta property="og:title" content="ReadWorld – Read Any Book Online Free" />
+  <meta property="og:description" content="Free online book reading platform with PDF and EPUB support. Track your reading progress and enjoy accessible features." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="icons/icon-512.png" />
+  
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ReadWorld – Read Any Book Online Free" />
+  <meta name="twitter:description" content="Free online book reading platform with accessibility features" />
+  
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  
+  <!-- iOS PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ReadWorld" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body>
+  <!-- ===== TOP NAVBAR ===== -->
+  <header class="top-nav">
+    <div class="logo-area">
+      <div class="logo-icon">📚</div>
+      <div class="logo-text">
+        <h1>ReadWorld</h1>
+        <p>Read what you love, anywhere.</p>
+      </div>
+    </div>
+
+    <div class="search-area">
+      <button id="homeBtn" class="nav-btn" title="Home">🏠</button>
+      <button id="backBtn" class="nav-btn" title="Go Back">◄</button>
+      <button id="forwardBtn" class="nav-btn" title="Go Forward">►</button>
+      <input type="text" id="searchInput" placeholder="Search by title or author" />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div class="user-area">
+      <button id="openProfileBtn" onclick="const panel=document.getElementById('rightPanel'); panel.classList.remove('hidden'); panel.classList.add('open'); renderRightPanel();">📖 My Shelf</button>
+      <button id="aboutBtn" onclick="const modal=document.getElementById('aboutModal'); modal.classList.remove('hidden');">ℹ️ About</button>
+      <button id="openAiHelperBtn" class="ai-helper-btn">🤖 AI Helper</button>
+    </div>
+  </header>
+
+  <!-- ===== MAIN LAYOUT ===== -->
+  <div class="layout">
+    <!-- === SIDEBAR === -->
+    <aside class="sidebar">
+      <section>
+        <h2>Genres</h2>
+        <ul id="genreList" class="genre-list">
+          <!-- filled by JS -->
+        </ul>
+        <button id="moreFiltersBtn" class="more-btn">More Options</button>
+      </section>
+
+      <section class="sidebar-section">
+        <h2>Sort By</h2>
+        <label class="checkbox-row">
+          <input type="radio" name="sortBy" id="sortDefault" checked />
+          <span>Default</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="radio" name="sortBy" id="sortRecent" />
+          <span>Recently Added</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="radio" name="sortBy" id="sortRating" />
+          <span>Highest Rated</span>
+        </label>
+      </section>
+
+      <section class="sidebar-section">
+        <h2>Filters</h2>
+        <label class="checkbox-row">
+          <input type="checkbox" id="onlyFavoritesCheckbox" />
+          <span>Only favorites</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="onlyInProgressCheckbox" />
+          <span>In progress</span>
+        </label>
+      </section>
+
+
+    </aside>
+
+    <!-- === MAIN CONTENT === -->
+    <main class="content">
+      <!-- BOOK LIST -->
+      <section>
+        <div class="section-header">
+          <h2 id="bookSectionTitle">All Books</h2>
+          <span id="bookCount" class="muted"></span>
+        </div>
+        <div id="bookGrid" class="book-grid">
+          <!-- Cards inserted by JS -->
+        </div>
+      </section>
+    </main>
+
+    <!-- === RIGHT PANEL (PROFILE) === -->
+    <div class="right-panel-overlay hidden" id="rightPanelOverlay"></div>
+    <aside class="right-panel" id="rightPanel">
+      <div class="right-panel-header">
+        <h2>Your Shelf</h2>
+        <button id="closeRightPanelBtn">✕</button>
+      </div>
+      
+      <!-- Tabs -->
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-tab="activity">📊 Activity</button>
+        <button class="panel-tab" data-tab="settings">⚙️ Settings</button>
+      </div>
+      
+      <!-- Activity Tab -->
+      <div class="panel-tab-content active" id="activityTab">
+        <div class="activity-section">
+          <h3>🏆 Achievements</h3>
+          <div id="achievementsList" class="achievements-list">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <div class="activity-section">
+          <h3>🔥 Reading Streak</h3>
+          <div class="streak-display">
+            <div class="streak-number" id="streakNumber">0</div>
+            <div class="streak-label">days in a row</div>
+          </div>
+        </div>
+
+        <div class="activity-section">
+          <h3>Your Statistics</h3>
+          <div class="stat-box">
+            <div class="stat-item">
+              <span class="stat-label">Books Saved:</span>
+              <span class="stat-value" id="statSaved">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Downloads:</span>
+              <span class="stat-value" id="statDownloads">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Favorites:</span>
+              <span class="stat-value" id="statFavorites">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="activity-section">
+          <h3>Favorites</h3>
+          <ul id="favoriteList" class="mini-book-list"></ul>
+        </div>
+
+        <div class="activity-section">
+          <h3>Recently Opened</h3>
+          <ul id="recentList" class="mini-book-list"></ul>
+        </div>
+        
+        <div class="activity-section">
+          <h3>Reading Progress</h3>
+          <ul id="progressList" class="mini-book-list"></ul>
+        </div>
+      </div>
+      
+      <!-- Settings Tab -->
+      <div class="panel-tab-content" id="settingsTab">
+        <div class="settings-section">
+          <h3>📖 Accessibility</h3>
+          
+          <div class="setting-item">
+            <label class="setting-label">Theme</label>
+            <div class="theme-toggle">
+              <button id="lightThemeBtn" class="theme-toggle-btn active" onclick="console.log('LIGHT CLICKED'); state.accessibility.darkMode=false; saveState(); applyAccessibilitySettings(); document.getElementById('lightThemeBtn').classList.add('active'); document.getElementById('darkThemeBtn').classList.remove('active'); showToast('☀️ Light theme');">☀️ Light</button>
+              <button id="darkThemeBtn" class="theme-toggle-btn" onclick="console.log('DARK CLICKED'); state.accessibility.darkMode=true; saveState(); applyAccessibilitySettings(); document.getElementById('darkThemeBtn').classList.add('active'); document.getElementById('lightThemeBtn').classList.remove('active'); showToast('🌙 Dark theme');">🌙 Dark</button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label class="checkbox-row full-width">
+              <input type="checkbox" id="colorBlindMode" onchange="console.log('COLOR BLIND CHANGED'); state.accessibility.colorBlind=this.checked; saveState(); applyAccessibilitySettings(); showToast(this.checked ? '🎨 Color blind enabled' : '🎨 Color blind disabled');" />
+              <span>🎨 Color Blind Friendly</span>
+            </label>
+            <p class="setting-description">Adjusts colors for better distinction</p>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>⚙️ Preferences</h3>
+          <label class="checkbox-row">
+            <input type="checkbox" id="settingsAutoSave" checked />
+            <span>💾 Auto-save reading progress</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="settingsShowAI" checked />
+            <span>🤖 Enable AI recommendations widget</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="settingsShowRecommendations" checked />
+            <span>✨ Show book recommendations</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="settingsShowDailyQuote" checked />
+            <span>📚 Show daily reading quote</span>
+          </label>
+        </div>
+        
+        <div class="settings-section">
+          <h3>🗑️ Data Management</h3>
+          <button id="clearDataBtn" class="secondary-btn full-width">Clear All Data</button>
+          <p class="muted small-text">Remove all favorites, progress, reviews, and settings</p>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- ===== READER MODAL ===== -->
+  <div class="modal-backdrop hidden" id="readerModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="reader-header-content">
+          <img id="readerBookCover" src="" alt="Book cover">
+          <div>
+            <h2 id="readerTitle"></h2>
+            <p class="muted" id="readerAuthor"></p>
+          </div>
+        </div>
+        <button id="closeReaderBtn">✕</button>
+      </div>
+
+      <div class="reader-layout">
+        <div class="reader-main">
+          <!-- Accessibility Controls -->
+          <div class="accessibility-toolbar">
+            <div class="zoom-controls">
+              <span class="tool-label">Zoom:</span>
+              <button id="zoomOut" class="tool-btn" title="Zoom out" aria-label="Zoom out" onclick="adjustZoom(-0.1)">-</button>
+              <span id="zoomLevel">100%</span>
+              <button id="zoomIn" class="tool-btn" title="Zoom in" aria-label="Zoom in" onclick="adjustZoom(0.1)">+</button>
+              <button id="zoomReset" class="tool-btn" title="Reset zoom" aria-label="Reset zoom" onclick="resetZoom()">Reset</button>
+            </div>
+            <div class="theme-controls">
+              <span class="tool-label">Theme:</span>
+              <button class="theme-btn active" data-theme="light" title="Light mode" aria-label="Light mode" onclick="state.accessibility.theme='light'; saveState(); applyAccessibilitySettings(); document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); showToast('Theme: Light');">☀️</button>
+              <button class="theme-btn" data-theme="dark" title="Dark mode" aria-label="Dark mode" onclick="state.accessibility.theme='dark'; saveState(); applyAccessibilitySettings(); document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); showToast('Theme: Dark');">🌙</button>
+              <button class="theme-btn" data-theme="sepia" title="Sepia mode" aria-label="Sepia mode" onclick="state.accessibility.theme='sepia'; saveState(); applyAccessibilitySettings(); document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); showToast('Theme: Sepia');">📜</button>
+              <button class="theme-btn" data-theme="warm" title="Warm candlelight" aria-label="Warm candlelight" onclick="state.accessibility.theme='warm'; saveState(); applyAccessibilitySettings(); document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); showToast('Theme: Warm Candlelight');">🕯️</button>
+            </div>
+          </div>
+
+          <div class="reader-controls">
+            <button id="prevPageBtn">Previous</button>
+            <button id="nextPageBtn">Next</button>
+            <button id="addBookmarkBtn" class="bookmark-btn" title="Bookmark this page">🔖 Bookmark</button>
+            <button id="addNoteBtn" class="note-btn" title="Add note for this page">📝 Note</button>
+            <button id="saveProgressBtn" class="primary-btn">Save Progress</button>
+          </div>
+          
+          <!-- Quick Note Input -->
+          <div id="quickNoteBox" class="quick-note-box hidden">
+            <textarea id="quickNoteInput" placeholder="Write your note for this page..." rows="3"></textarea>
+            <div class="quick-note-actions">
+              <button id="saveQuickNoteBtn" class="primary-btn">Save Note</button>
+              <button id="cancelQuickNoteBtn">Cancel</button>
+            </div>
+          </div>
+
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <p class="muted" id="progressText"></p>
+
+          <!-- PDF canvas -->
+          <div id="pdfView" class="reader-page hidden" role="document" aria-label="Book content">
+            <canvas id="pdfCanvas"></canvas>
+          </div>
+
+          <!-- EPUB container -->
+          <div id="epubContainer" class="reader-page hidden" role="document" aria-label="Book content"></div>
+        </div>
+
+        <div class="reader-sidebar">
+          <div class="sidebar-tabs">
+            <button class="sidebar-tab active" id="infoTab">Info</button>
+            <button class="sidebar-tab" id="annotationsTab">Annotations</button>
+          </div>
+
+          <div id="infoTabContent" class="sidebar-tab-content">
+            <h3>Book Info</h3>
+            <p id="readerAuthorInfo"></p>
+            <p id="readerGenres"></p>
+            <p id="readerPublishDate"></p>
+            <p id="readerISBN"></p>
+            <p id="readerPages"></p>
+            <p id="readerLanguage"></p>
+            <div id="readerSynopsis" class="reader-synopsis"></div>
+            <p id="readerRating"></p>
+
+            <h3>Rating Distribution</h3>
+            <div class="rating-distribution">
+              <div class="rating-bar-item">
+                <span class="rating-label">5 ⭐</span>
+                <div class="rating-bar-bg">
+                  <div class="rating-bar-fill" id="rating5Bar"></div>
+                </div>
+                <span class="rating-count" id="rating5Count">0</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="rating-label">4 ⭐</span>
+                <div class="rating-bar-bg">
+                  <div class="rating-bar-fill" id="rating4Bar"></div>
+                </div>
+                <span class="rating-count" id="rating4Count">0</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="rating-label">3 ⭐</span>
+                <div class="rating-bar-bg">
+                  <div class="rating-bar-fill" id="rating3Bar"></div>
+                </div>
+                <span class="rating-count" id="rating3Count">0</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="rating-label">2 ⭐</span>
+                <div class="rating-bar-bg">
+                  <div class="rating-bar-fill" id="rating2Bar"></div>
+                </div>
+                <span class="rating-count" id="rating2Count">0</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="rating-label">1 ⭐</span>
+                <div class="rating-bar-bg">
+                  <div class="rating-bar-fill" id="rating1Bar"></div>
+                </div>
+                <span class="rating-count" id="rating1Count">0</span>
+              </div>
+            </div>
+
+            <h3>Your Review</h3>
+            <input type="text" id="reviewNameInput" class="review-name-input" placeholder="Your name">
+            <div class="star-rating-input">
+              <span class="star-btn" data-rating="1">☆</span>
+              <span class="star-btn" data-rating="2">☆</span>
+              <span class="star-btn" data-rating="3">☆</span>
+              <span class="star-btn" data-rating="4">☆</span>
+              <span class="star-btn" data-rating="5">☆</span>
+            </div>
+            <textarea id="reviewInput" placeholder="Write your thoughts about this book..."></textarea>
+            <button id="saveReviewBtn" class="primary-btn">Save Review</button>
+            <p class="muted" id="reviewSavedMsg"></p>
+
+            <h3>User Reviews</h3>
+            <div id="userReviewsList" class="user-reviews-list">
+              <p class="muted">No reviews yet. Be the first to review!</p>
+            </div>
+          </div>
+
+          <div id="annotationsTabContent" class="sidebar-tab-content hidden">
+            <h3>Bookmarks</h3>
+            <ul id="bookmarksList" class="annotations-list">
+              <li class="muted">No bookmarks yet</li>
+            </ul>
+
+            <h3>Notes</h3>
+            <ul id="notesList" class="annotations-list">
+              <li class="muted">No notes yet</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NOTE MODAL ===== -->
+  <div class="modal-backdrop hidden" id="noteModal">
+    <div class="modal note-modal">
+      <div class="modal-header">
+        <h2>Add Note</h2>
+        <button id="closeNoteBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="muted" id="notePageInfo"></p>
+        <textarea id="noteTextarea" placeholder="Write your note here..." rows="6"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelNoteBtn">Cancel</button>
+        <button id="saveNoteBtn" class="primary-btn">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ===== ADVANCED FILTERS MODAL ===== -->
+  <div class="modal-backdrop hidden" id="filtersModal">
+    <div class="modal filters-modal">
+      <div class="modal-header">
+        <h2>Advanced Filters</h2>
+        <button id="closeFiltersBtn">✕</button>
+      </div>
+      
+      <div class="filters-content">
+        <section>
+          <h3>Filter by Genre</h3>
+          <div id="genreCheckboxes" class="checkbox-grid">
+            <!-- filled by JS -->
+          </div>
+        </section>
+        
+        <section>
+          <h3>Filter by Rating</h3>
+          <label class="checkbox-row">
+            <input type="checkbox" id="rating48" />
+            <span>⭐ 4.8 - 5.0 stars</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="rating45" />
+            <span>⭐ 4.5 - 4.7 stars</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="rating40" />
+            <span>⭐ 4.0 - 4.4 stars</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="rating35" />
+            <span>⭐ 3.5 - 3.9 stars</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="rating30" />
+            <span>⭐ 3.0 - 3.4 stars</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="ratingBelow3" />
+            <span>⭐ Below 3.0 stars</span>
+          </label>
+        </section>
+        
+        <section>
+          <h3>Filter by Format</h3>
+          <label class="checkbox-row">
+            <input type="checkbox" id="formatPdf" />
+            <span>PDF</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="formatEpub" />
+            <span>EPUB</span>
+          </label>
+        </section>
+        
+        <section>
+          <h3>Filter by Language</h3>
+          <label class="checkbox-row">
+            <input type="checkbox" id="langEnglish" />
+            <span>🇬🇧 English</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="langSpanish" />
+            <span>🇪🇸 Spanish</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="langPortuguese" />
+            <span>🇵🇹 Portuguese</span>
+          </label>
+        </section>
+        
+        <div class="filters-actions">
+          <button id="clearFiltersBtn" class="secondary-btn">Clear All</button>
+          <button id="applyFiltersBtn" class="primary-btn">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DAILY QUOTE MODAL ===== -->
+  <div class="modal-backdrop hidden" id="quoteModal">
+    <div class="modal quote-modal">
+      <div class="modal-header">
+        <h2>📖 Today's Reading Inspiration</h2>
+        <button id="closeQuoteBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="daily-quote" id="dailyQuoteText"></p>
+        <p class="quote-author" id="dailyQuoteAuthor"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AI HELPER WIDGET ===== -->
+  <div class="ai-widget" id="aiWidget">
+    <div class="ai-widget-header">
+      <span>🤖 AI Helper</span>
+      <div>
+        <button class="ai-widget-toggle" id="aiWidgetToggle">−</button>
+        <button class="ai-widget-close" id="aiWidgetClose">✕</button>
+      </div>
+    </div>
+    <div class="ai-widget-content" id="aiWidgetContent">
+      <!-- AI Chat Interface -->
+      <div id="aiWidgetChatMessages" class="ai-widget-chat-messages">
+        <div class="ai-widget-welcome">
+          👋 Hi! How can I help you today?
+        </div>
+        <div id="aiQuickActions" class="ai-quick-actions">
+          <button class="ai-quick-btn" data-question="What should I read?">📚 Book recommendations</button>
+          <button class="ai-quick-btn" data-question="How do I highlight text?">🖍️ How to highlight</button>
+          <button class="ai-quick-btn" data-question="How many books do you have?">📖 Browse library</button>
+          <button class="ai-quick-btn" data-question="Show my reading stats">📊 My progress</button>
+        </div>
+      </div>
+      <div class="ai-widget-input-container">
+        <input type="text" id="aiWidgetChatInput" placeholder="Type your question..." class="ai-widget-chat-input" />
+        <button id="aiWidgetChatSend" class="ai-widget-chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABOUT MODAL ===== -->
+  <div class="modal-backdrop hidden" id="aboutModal" onclick="if(event.target===this) this.classList.add('hidden');">
+    <div class="modal about-modal">
+      <div class="modal-header">
+        <h2>ℹ️ About ReadWorld</h2>
+        <button id="closeAboutBtn" onclick="document.getElementById('aboutModal').classList.add('hidden');">✕</button>
+      </div>
+      <div class="modal-body">
+        <section class="about-section">
+          <h3>📚 What is ReadWorld?</h3>
+          <p>ReadWorld is a free, open-source online book reading platform designed to make reading accessible to everyone. Whether you're reading PDFs or EPUBs, we provide a seamless, distraction-free reading experience with powerful features to enhance your journey.</p>
+          
+          <h4>Features:</h4>
+          <ul class="about-features-list">
+            <li>📖 Read PDF and EPUB books directly in your browser</li>
+            <li>🌙 Dark mode and color-blind friendly themes</li>
+            <li>📊 Track your reading progress and build streaks</li>
+            <li>⭐ Rate and review books you've read</li>
+            <li>💾 Auto-save your progress and bookmarks</li>
+            <li>🎯 Personalized recommendations</li>
+            <li>📱 Works on all devices - desktop, tablet, and mobile</li>
+            <li>♿ Accessibility features including zoom and theme controls</li>
+          </ul>
+        </section>
+
+        <section class="about-section">
+          <h3>📬 Request a Book</h3>
+          <p>Can't find a book you're looking for? Let us know and we'll try to add it to our collection!</p>
+          <input type="text" id="requestBookTitle" class="request-input" placeholder="Book title" />
+          <input type="text" id="requestBookAuthor" class="request-input" placeholder="Author name" />
+          <textarea id="requestBookDetails" class="request-textarea" placeholder="Any additional details (genre, ISBN, why you'd like this book, etc.)" rows="3"></textarea>
+          <button id="submitBookRequestBtn" class="primary-btn full-width">Submit Request</button>
+          <p class="muted small-text" id="requestConfirmation"></p>
+          
+          <!-- Admin: View Requests Button -->
+          <div class="admin-section-divider">
+            <button id="viewRequestsBtn" class="secondary-btn full-width admin-view-btn">
+              🔍 View All Requests (Admin)
+            </button>
+          </div>
+        </section>
+
+        <!-- Book Requests List (Hidden by default) -->
+        <section class="about-section hidden" id="requestsListSection">
+          <div class="requests-header">
+            <h3>📬 Book Requests</h3>
+            <div class="requests-actions">
+              <button id="exportRequestsBtn" class="secondary-btn export-btn">
+                📥 Export
+              </button>
+              <button id="closeRequestsBtn" class="secondary-btn small-btn">Close</button>
+            </div>
+          </div>
+          <div id="requestsList" class="requests-list-container"></div>
+        </section>
+
+        <section class="about-section">
+          <h3>📜 Copyright & Legal</h3>
+          <p class="copyright-text">© 2025 ReadWorld. All rights reserved.</p>
+          <p class="small-text muted">ReadWorld is a book reading platform. All books available on this platform are either in the public domain, available under Creative Commons licenses, or uploaded with appropriate permissions. We respect copyright laws and intellectual property rights.</p>
+          <p class="small-text muted">If you believe any content infringes on your copyright, please contact us immediately at: <strong>copyright@readworld.com</strong></p>
+        </section>
+
+        <section class="about-section">
+          <h3>🤝 Support & Contact</h3>
+          <p>Have questions, feedback, or suggestions? We'd love to hear from you!</p>
+          <p>📧 Email: <strong>support@readworld.com</strong></p>
+          <p>🐛 Report bugs: <strong>bugs@readworld.com</strong></p>
+        </section>
+
+        <section class="about-section about-footer">
+          <p class="muted small-text">Made with ❤️ for book lovers everywhere</p>
+          <p class="muted small-text">Version 1.0.0 • Last updated: December 2025</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONFETTI CANVAS ===== -->
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+  <!-- PDF.js (for PDFs) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- epub.js (for EPUBs) -->
+  <script src="https://unpkg.com/epubjs/dist/epub.js"></script>
+
+  <!-- OpenDyslexic Font -->
+  <link href="https://fonts.cdnfonts.com/css/opendyslexic" rel="stylesheet">
+
+  <script src="app.js"></script>
+  
+  <script>
+    // Backup: Ensure accessibility works even if app.js has issues
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('BACKUP SCRIPT RUNNING');
+      
+      const darkBtn = document.getElementById('darkThemeBtn');
+      const lightBtn = document.getElementById('lightThemeBtn');
+      const colorBlind = document.getElementById('colorBlindMode');
+      
+      console.log('Backup - Elements found:', {
+        darkBtn: !!darkBtn,
+        lightBtn: !!lightBtn,
+        colorBlind: !!colorBlind
+      });
+      
+      if (darkBtn) {
+        console.log('Backup - Adding dark button listener');
+        darkBtn.addEventListener('click', function() {
+          console.log('BACKUP DARK CLICKED!');
+          document.body.classList.add('dark-theme');
+          console.log('Body classes:', document.body.className);
+        });
+      }
+      
+      if (lightBtn) {
+        lightBtn.addEventListener('click', function() {
+          console.log('BACKUP LIGHT CLICKED!');
+          document.body.classList.remove('dark-theme');
+          console.log('Body classes:', document.body.className);
+        });
+      }
+      
+      if (colorBlind) {
+        colorBlind.addEventListener('change', function() {
+          console.log('BACKUP COLOR BLIND CHANGED!');
+          if (this.checked) {
+            document.body.classList.add('color-blind');
+          } else {
+            document.body.classList.remove('color-blind');
+          }
+          console.log('Body classes:', document.body.className);
+        });
+      }
+    });
+    
+    // DEBUG: Test if functions are available
+    console.log('🔍 FUNCTION CHECK:', {
+      toggleBookmark: typeof window.toggleBookmark,
+      saveQuickNote: typeof window.saveQuickNote,
+      showQuickNoteBox: typeof window.showQuickNoteBox,
+      hideQuickNoteBox: typeof window.hideQuickNoteBox
+    });
+  </script>
+</body>
+</html>
