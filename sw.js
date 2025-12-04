@@ -27,22 +27,26 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // If both cache and network fail, try to return cached index.html for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('index.html').then(cachedResponse => {
-            return cachedResponse || new Response('Offline - please check your connection', {
-              status: 503,
-              statusText: 'Service Unavailable',
-              headers: new Headers({ 'Content-Type': 'text/plain' })
-            });
-          });
+        // Return cached version if available
+        if (response) {
+          return response;
         }
-        // For other requests, return a 503 error
-        return new Response('Offline', { status: 503 });
+        
+        // Try to fetch from network
+        return fetch(event.request).catch(() => {
+          // If network fetch fails and this is a navigation request, return cached index
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html').then(cachedResponse => {
+              return cachedResponse || new Response('Offline - please check your connection', {
+                status: 503,
+                statusText: 'Service Unavailable',
+                headers: new Headers({ 'Content-Type': 'text/plain' })
+              });
+            });
+          }
+          // For other requests, return a 503 error
+          return new Response('Offline', { status: 503 });
+        });
       })
   );
 });
