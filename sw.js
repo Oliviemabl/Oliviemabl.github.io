@@ -31,8 +31,18 @@ self.addEventListener('fetch', event => {
         return response || fetch(event.request);
       })
       .catch(() => {
-        // If both cache and network fail, could return a custom offline page
-        return caches.match('/index.html');
+        // If both cache and network fail, try to return cached index.html for navigation requests
+        if (event.request.mode === 'navigate') {
+          return caches.match('index.html').then(cachedResponse => {
+            return cachedResponse || new Response('Offline - please check your connection', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({ 'Content-Type': 'text/plain' })
+            });
+          });
+        }
+        // For other requests, return a 503 error
+        return new Response('Offline', { status: 503 });
       })
   );
 });
