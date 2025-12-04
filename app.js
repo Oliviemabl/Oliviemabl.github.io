@@ -1,4 +1,7 @@
 // ===== API CONFIGURATION =====
+// Note: API is optional. The app works fully client-side without a backend.
+// Authentication features will fail gracefully if API is not available.
+// All core reading features work as a guest user with browser localStorage.
 const API_URL = "http://localhost:4000/api";
 
 // ===== AUTH HELPERS =====
