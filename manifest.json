@@ -1,0 +1,10 @@
+{
+  "name": "ReadWorld - Free Online Book Reader",
+  "short_name": "ReadWorld",
+  "description": "Read PDF and EPUB books online with progress tracking and bookmarks",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#6366f1",
+  "theme_color": "#6366f1",
+  "orientation": "any"
+}
